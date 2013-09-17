@@ -39,7 +39,7 @@ PHP_URL="https://heroku-buildpack-php.s3.amazonaws.com/php-$PHP_VERSION.tar.gz"
 echo "-----> Bundling PHP version $PHP_VERSION"
 curl --silent --max-time 60 --location "$PHP_URL" | tar xz
 
-DRUSH_URL="http://ftp.drupal.org/files/projects/drush-7.x-$DRUSH_VERSION.tar.gz"
+DRUSH_URL="https://github.com/drush-ops/drush/archive/$DRUSH_VERSION.tar.gz"
 echo "-----> Bundling Drush version $DRUSH_VERSION"
 curl --silent --max-time 60 --location "$DRUSH_URL" | tar xz
 export LD_LIBRARY_PATH=$PWD/php/ext
