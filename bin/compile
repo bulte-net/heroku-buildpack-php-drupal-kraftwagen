@@ -39,6 +39,13 @@ if [ -f www/Procfile ]; then
   mv www/Procfile .
 fi
 
+# are we on heroku?
+if [ -d /dev/herokudev ]; then
+  export IS_HEROKU=1
+else
+  export IS_HEROKU=0
+fi
+
 MCRYPT_URL="https://heroku-buildpack-php.s3.amazonaws.com/mcrypt-""$MCRYPT_VERSION""$heroku_rev"".tar.gz"
 echo "-----> Bundling mcrypt version $MCRYPT_VERSION"
 curl --silent --max-time 60 --location "$MCRYPT_URL" | tar xz
@@ -85,11 +92,12 @@ if [ ! -d build ]; then
 
   echo "-----> Kraftwagen build..."
   $DRUSH_BIN kw-build
-
   cd build
 
-  echo "-----> Kraftwagen init-database..."
-  $DRUSH_BIN kw-id
+  if [ IS_HEROKU == 0 ]; then
+    echo "-----> Kraftwagen init-database..."
+    $DRUSH_BIN kw-id
+  fi
 
   echo "-----> Kraftwagen update..."
   $DRUSH_BIN kw-update
@@ -100,9 +108,13 @@ if [ ! -d build ]; then
   echo "Your Kraftwagen is ready, sir."
 fi
 
-echo "-----> Setting permissions..."
-# chown -R daemon.daemon www/sites/
-# chmod -R u+w www/sites
+
+if [ IS_HEROKU == 0 ]; then
+  echo "-----> Setting permissions..."
+  chown -R daemon.daemon www/sites/
+  chmod -R u+w www/sites
+fi
+
 whoami
 
 cat >>boot.sh <<EOF
