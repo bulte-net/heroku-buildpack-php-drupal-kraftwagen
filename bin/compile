@@ -76,7 +76,7 @@ echo $DRUSH_BIN
 
 $DRUSH_BIN --druplicon version
 
-ls -l
+ls -l www/
 
 # Check if no build dir (drupal site output by kw)
 if [ ! -d build ]; then
