@@ -55,6 +55,8 @@ DRUSH_URL="http://ftp.drupal.org/files/projects/drush-7.x-$DRUSH_VERSION.tar.gz"
 echo "-----> Bundling Drush version $DRUSH_VERSION"
 curl --silent --max-time 60 --location "$DRUSH_URL" | tar xz
 
+find / -name 'libmcrypt.so.4'
+
 export LD_LIBRARY_PATH=/app/php/lib/php
 export PHP_INI_SCAN_DIR=/app/www
 
