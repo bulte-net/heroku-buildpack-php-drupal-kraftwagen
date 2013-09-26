@@ -97,13 +97,13 @@ if [ ! -d build ]; then
   if [ IS_HEROKU == 0 ]; then
     echo "-----> Kraftwagen init-database..."
     $DRUSH_BIN kw-id
+
+    echo "-----> Kraftwagen update..."
+    $DRUSH_BIN kw-update
+
+    echo "-----> Kraftwagen loading translations..."
+    $DRUSH_BIN kw-it
   fi
-
-  echo "-----> Kraftwagen update..."
-  $DRUSH_BIN kw-update
-
-  echo "-----> Kraftwagen loading translations..."
-  $DRUSH_BIN kw-it
 
   echo "Your Kraftwagen is ready, sir."
 fi
