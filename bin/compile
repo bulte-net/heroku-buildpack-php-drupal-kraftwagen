@@ -59,12 +59,12 @@ mv drush-$DRUSH_VERSION drush
 export LD_LIBRARY_PATH=/app/php/lib/php:$PWD/vendor/mcrypt/lib
 export PHP_INI_SCAN_DIR=/app/www
 
-echo $LD_LIBRARY_PATH
-
 # install kraftwagen
 git clone "git://github.com/kraftwagen/kraftwagen.git" kw
 
 export DRUSH_BIN="$PWD/php/bin/php -f $PWD/drush/drush.php -- --php=$PWD/php/bin/php -i $PWD/kw"
+
+ls -l $PWD/kw
 
 # update config files
 cp $LP_DIR/conf/httpd.conf $APACHE_PATH/conf
