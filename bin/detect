@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-if [ -f $1/build-*.make ]; then
-  echo "Drupal Install Profile" && exit 0
+if [[ -d $1/cnf && -d $1/src ]]; then
+  echo "Kraftwagen repository layout" && exit 0
 else
   echo "no" && exit 1
 fi

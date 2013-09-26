@@ -4,10 +4,18 @@
 # fail fast
 set -e
 
+# Heroku Revision.
+#
+# Affixed to all vendored binary output to represent changes to the
+# compilation environment without a change to the upstream version,
+# e.g. PHP 5.3.27 without, and then subsequently with, libmcrypt.
+heroku_rev='-2'
+
 # config
-APACHE_VERSION="2.2.22"
+MCRYPT_VERSION="2.5.8"
+APACHE_VERSION="2.2.25"
 APACHE_PATH="apache"
-PHP_VERSION="5.3.10"
+PHP_VERSION="5.3.27"
 PHP_PATH="php"
 DRUSH_VERSION="5.8"
 
@@ -22,20 +30,24 @@ shopt -s dotglob
 cd $BUILD_DIR
 
 # move app things to www
-mkdir -p $CACHE_DIR/profile
-mv * $CACHE_DIR/profile
-mv $CACHE_DIR/profile .
+mkdir -p $CACHE_DIR/www
+mv * $CACHE_DIR/www
+mv $CACHE_DIR/www .
 
 # keep Procfile
-if [ -f profile/Procfile ]; then
-  mv profile/Procfile .
+if [ -f www/Procfile ]; then
+  mv www/Procfile .
 fi
 
-APACHE_URL="https://s3.amazonaws.com/php-lp/apache-$APACHE_VERSION.tar.gz"
+MCRYPT_URL="https://heroku-buildpack-php.s3.amazonaws.com/mcrypt-""$MCRYPT_VERSION""$heroku_rev"".tar.gz"
+echo "-----> Bundling mcrypt version $MCRYPT_VERSION"
+curl --silent --max-time 60 --location "$MCRYPT_URL" | tar xz
+
+APACHE_URL="https://heroku-buildpack-php.s3.amazonaws.com/apache-""$APACHE_VERSION""$heroku_rev"".tar.gz"
 echo "-----> Bundling Apache version $APACHE_VERSION"
 curl --silent --max-time 60 --location "$APACHE_URL" | tar xz
 
-PHP_URL="https://s3.amazonaws.com/php-lp/php-$PHP_VERSION.tar.gz"
+PHP_URL="https://heroku-buildpack-php.s3.amazonaws.com/php-$PHP_VERSION""$heroku_rev"".tar.gz"
 echo "-----> Bundling PHP version $PHP_VERSION"
 curl --silent --max-time 60 --location "$PHP_URL" | tar xz
 
@@ -43,7 +55,13 @@ DRUSH_URL="http://ftp.drupal.org/files/projects/drush-7.x-$DRUSH_VERSION.tar.gz"
 echo "-----> Bundling Drush version $DRUSH_VERSION"
 curl --silent --max-time 60 --location "$DRUSH_URL" | tar xz
 export LD_LIBRARY_PATH=$PWD/php/ext
-export DRUSH_BIN="$PWD/php/bin/php -f $PWD/drush/drush.php -- --php=$PWD/php/bin/php"
+
+# install kraftwagen
+git clone "git://github.com/kraftwagen/kraftwagen.git" kw
+
+export DRUSH_BIN="$PWD/php/bin/php -f $PWD/drush/drush.php -- --php=$PWD/php/bin/php -i $PWD/kw"
+
+$DRUSH_BIN --druplicon version
 
 # update config files
 cp $LP_DIR/conf/httpd.conf $APACHE_PATH/conf
@@ -53,21 +71,32 @@ cp $LP_DIR/conf/php.ini php
 mkdir -p bin
 ln -s /app/php/bin/php bin/php
 
-# Check if drupal install profile
-if [ -f profile/build-*.make ] && [ ! -d www ]; then
-  echo "-----> Drush makinkg..."
-  $DRUSH_BIN make profile/build-*.make www --prepare-install
-  echo "-----> Appending settings.php snippets..."
-  for f in profile/tmp/snippets/*.settings.php
-  do
-    # Concatenate newline and snippet, then append to settings.php
-    echo "" | cat - $f | tee -a www/sites/default/settings.php > /dev/null
-  done
+# Check if no build dir (drupal site output by kw)
+if [ ! -d build ]; then
+  echo "-----> Kraftwagen setup..."
+  $DRUSH_BIN kw-setup
+
+  echo "-----> Kraftwagen build..."
+  $DRUSH_BIN kw-build
+
+  cd build
+
+  echo "-----> Kraftwagen init-database..."
+  $DRUSH_BIN kw-id
+
+  echo "-----> Kraftwagen update..."
+  $DRUSH_BIN kw-update
+
+  echo "-----> Kraftwagen loading translations..."
+  $DRUSH_BIN kw-it
+
+  echo "Your Kraftwagen is ready, sir."
 fi
 
 echo "-----> Setting permissions..."
-chown -R daemon.daemon www/sites/
-chmod -R u+w www/sites
+# chown -R daemon.daemon www/sites/
+# chmod -R u+w www/sites
+whoami
 
 cat >>boot.sh <<EOF
 for var in \`env|cut -f1 -d=\`; do
@@ -77,7 +106,7 @@ touch /app/apache/logs/error_log
 touch /app/apache/logs/access_log
 tail -F /app/apache/logs/error_log &
 tail -F /app/apache/logs/access_log &
-export LD_LIBRARY_PATH=/app/php/ext
+export LD_LIBRARY_PATH=/app/php/lib/php
 export PHP_INI_SCAN_DIR=/app/www
 echo "Launching apache"
 exec /app/apache/bin/httpd -DNO_DETACH
@@ -86,4 +115,4 @@ EOF
 chmod +x boot.sh
 
 # clean the cache
-rm -rf $CACHE_DIR/*
+rm -rf $CACHE_DIR
