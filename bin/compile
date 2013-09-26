@@ -105,6 +105,12 @@ if [ ! -d build ]; then
     $DRUSH_BIN kw-it
   fi
 
+  # remove symlink, apache dont like it here
+  cd ..
+  KW_BUILD_DIR=`readlink build`
+  rm build
+  mv $KW_BUILD_DIR build
+
   echo "Your Kraftwagen is ready, sir."
 fi
 
