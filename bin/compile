@@ -54,9 +54,13 @@ APACHE_URL="https://heroku-buildpack-php.s3.amazonaws.com/apache-""$APACHE_VERSI
 echo "-----> Bundling Apache version $APACHE_VERSION"
 curl --silent --max-time 60 --location "$APACHE_URL" | tar xz
 
+cp $LP_DIR/conf/httpd.conf $APACHE_PATH/conf
+
 PHP_URL="https://heroku-buildpack-php.s3.amazonaws.com/php-$PHP_VERSION""$heroku_rev"".tar.gz"
 echo "-----> Bundling PHP version $PHP_VERSION"
 curl --silent --max-time 60 --location "$PHP_URL" | tar xz
+
+cp $LP_DIR/conf/php.ini php
 
 DRUSH_URL="https://github.com/drush-ops/drush/archive/$DRUSH_VERSION.tar.gz"
 echo "-----> Bundling Drush version $DRUSH_VERSION"
@@ -70,10 +74,6 @@ export PHP_INI_SCAN_DIR=/app/www
 git clone "git://github.com/kraftwagen/kraftwagen.git" kw
 
 export DRUSH_BIN="$PWD/php/bin/php -f $PWD/drush/drush.php -- --php=$PWD/php/bin/php -i $PWD/kw"
-
-# update config files
-cp $LP_DIR/conf/httpd.conf $APACHE_PATH/conf
-cp $LP_DIR/conf/php.ini php
 
 # make php available on bin
 mkdir -p bin
@@ -132,6 +132,8 @@ exec /app/apache/bin/httpd -DNO_DETACH
 EOF
 
 chmod +x boot.sh
+
+cat boot.sh
 
 # clean the cache
 rm -rf $CACHE_DIR
