@@ -58,7 +58,7 @@ curl --silent --max-time 60 --location "$DRUSH_URL" | tar xz
 export LD_LIBRARY_PATH=/app/php/lib/php:$PWD/vendor/mcrypt/lib
 export PHP_INI_SCAN_DIR=/app/www
 
-echp $LD_LIBRARY_PATH
+echo $LD_LIBRARY_PATH
 
 # install kraftwagen
 git clone "git://github.com/kraftwagen/kraftwagen.git" kw
