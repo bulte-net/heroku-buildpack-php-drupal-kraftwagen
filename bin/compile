@@ -69,6 +69,8 @@ cp $LP_DIR/conf/php.ini php
 mkdir -p bin
 ln -s /app/php/bin/php bin/php
 
+echo $DRUSH_BIN
+
 $DRUSH_BIN --druplicon version
 
 # Check if no build dir (drupal site output by kw)
