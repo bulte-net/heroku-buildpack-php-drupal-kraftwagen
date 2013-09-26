@@ -64,8 +64,6 @@ git clone "git://github.com/kraftwagen/kraftwagen.git" kw
 
 export DRUSH_BIN="$PWD/php/bin/php -f $PWD/drush/drush.php -- --php=$PWD/php/bin/php -i $PWD/kw"
 
-ls -l $PWD/kw
-
 # update config files
 cp $LP_DIR/conf/httpd.conf $APACHE_PATH/conf
 cp $LP_DIR/conf/php.ini php
@@ -77,6 +75,8 @@ ln -s /app/php/bin/php bin/php
 echo $DRUSH_BIN
 
 $DRUSH_BIN --druplicon version
+
+ls -l
 
 # Check if no build dir (drupal site output by kw)
 if [ ! -d build ]; then
