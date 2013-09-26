@@ -115,7 +115,7 @@ if [ IS_HEROKU == 0 ]; then
   chmod -R u+w www/sites
 fi
 
-whoami
+cd ..
 
 cat >>boot.sh <<EOF
 for var in \`env|cut -f1 -d=\`; do
@@ -132,8 +132,6 @@ exec /app/apache/bin/httpd -DNO_DETACH
 EOF
 
 chmod +x boot.sh
-
-cat boot.sh
 
 # clean the cache
 rm -rf $CACHE_DIR
