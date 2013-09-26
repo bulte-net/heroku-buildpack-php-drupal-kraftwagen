@@ -54,6 +54,7 @@ curl --silent --max-time 60 --location "$PHP_URL" | tar xz
 DRUSH_URL="https://github.com/drush-ops/drush/archive/$DRUSH_VERSION.tar.gz"
 echo "-----> Bundling Drush version $DRUSH_VERSION"
 curl --silent --max-time 60 --location "$DRUSH_URL" | tar xz
+mv drush-$DRUSH_VERSION drush
 
 export LD_LIBRARY_PATH=/app/php/lib/php:$PWD/vendor/mcrypt/lib
 export PHP_INI_SCAN_DIR=/app/www
