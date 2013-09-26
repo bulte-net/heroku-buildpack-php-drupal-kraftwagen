@@ -108,14 +108,13 @@ if [ ! -d build ]; then
   echo "Your Kraftwagen is ready, sir."
 fi
 
+cd $BUILD_DIR
 
 if [ IS_HEROKU == 0 ]; then
   echo "-----> Setting permissions..."
-  chown -R daemon.daemon www/sites/
-  chmod -R u+w www/sites
+  chown -R daemon.daemon www/build/sites/
+  chmod -R u+w www/build/sites
 fi
-
-cd ..
 
 cat >>boot.sh <<EOF
 for var in \`env|cut -f1 -d=\`; do
