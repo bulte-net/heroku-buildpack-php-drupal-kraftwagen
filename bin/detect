@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ -f $1/kraftwagen && -d $1/src ]]; then
-  echo "Kraftwagen repository layout" && exit 0
+  echo "Drupal Kraftwagen app" && exit 0
 else
   echo "no" && exit 1
 fi
