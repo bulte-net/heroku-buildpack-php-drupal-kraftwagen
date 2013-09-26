@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ -d $1/cnf && -d $1/src ]]; then
+if [[ -f $1/kraftwagen && -d $1/src ]]; then
   echo "Kraftwagen repository layout" && exit 0
 else
   echo "no" && exit 1
