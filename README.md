@@ -1,4 +1,6 @@
-Apache+PHP build pack (Drupal Edition)
+### Work in progress
+
+Apache+PHP build pack (Kraftwagen Edition)
 ========================
 
 This is a build pack bundling PHP and Apache for Heroku apps.
